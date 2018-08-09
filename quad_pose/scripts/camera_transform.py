@@ -16,6 +16,7 @@ class cameraTransform():
 		rospy.init_node('camera_transform', anonymous=True)
 
 		self.pubPixels = rospy.Publisher('pixels', Float32MultiArray, queue_size=10)
+		self.posePublisher = rospy.Publisher('quad_pose', Float32MultiArray, queue_size=10)
 
 		rospy.Subscriber('vrpn_client_node/RigidBody01/pose',
                      PoseStamped,
@@ -24,6 +25,8 @@ class cameraTransform():
 		rospy.Subscriber('vrpn_client_node/RigidBody02/pose',
 					 PoseStamped,
 					 self.handle_rb02_CB)
+
+		self.cameraMatrix = rospy.get_param('~camera_matrix/data')
 
 		self.rb01 = PoseStamped()
 		self.rb02 = PoseStamped()
@@ -37,10 +40,6 @@ class cameraTransform():
 
 		self.rb01PosQuad = np.array([0.0, -0.03, 0.0])
 		self.rb01RotQuad = np.array([0.0, 0.0, 0.0, 1.0])
-
-		self.cameraMatrix = rospy.get_param('~camera_matrix/data')
-
-		self.posePublisher = rospy.Publisher('quad_pose', Float32MultiArray, queue_size=10)
 
 		self.restrictPixel = -1.0
 
@@ -88,24 +87,24 @@ class cameraTransform():
 						self.rb02.pose.orientation.z,
 						self.rb02.pose.orientation.w])
 
-		### STEP 1 ###
+		### STEP 1 - calculate rotation from world frame to camera frame  ###
 
 		camRotWorld = tf.transformations.quaternion_multiply(tf.transformations.quaternion_inverse(self.rb02RotCam),
 															 tf.transformations.quaternion_inverse(worldRotrb02))
 
-		### STEP 2 ###
+		### STEP 2 - calculate position of quad in world frame ###
 
 		worldPosQuad = self.qv_multi(worldRotrb01, self.rb01PosQuad) + worldPosrb01
 
-		### STEP 3 ###
+		### STEP 3 - calculate position of camera in world frame ###
 
 		worldPosCam = self.qv_multi(worldRotrb02, self.rb02PosCam) + worldPosrb02
 
-		### STEP 4 ###
+		### STEP 4 - calculate position of quad in camera frame ###
 
 		camPosQuad = self.qv_multi(camRotWorld, (worldPosQuad - worldPosCam))
 
-		### STEP 5 ###
+		### STEP 5 - calculate position of quad in pixel frame ###
 
 		self.restrictPixel = camPosQuad[2]
 

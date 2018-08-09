@@ -67,6 +67,7 @@ class csvWriter():
 		self.boxSize.data.append(math.sqrt(w**2 + h**2))
 
 	def writeToFile(self):
+		##### FILENAME
 		with open('/home/msl/catkin_ws/src/quad_pose/pixel_pose.csv', mode='w') as csv_file:
 			fields = ['xPixel', 'yPixel', 'boxSize', 'xPose', 'yPose', 'zPose']
 			writer = csv.DictWriter(csv_file, fieldnames=fields)

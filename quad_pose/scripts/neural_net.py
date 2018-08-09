@@ -18,6 +18,7 @@ output_size = 3
 num_epochs = 100
 batch_size = 15
 
+##### FILENAME
 csv = pd.read_csv('/home/msl/catkin_ws/src/quad_pose/pixel_pose.csv')
 
 features = csv.drop(['xPose', 'yPose', 'zPose'], axis=1)
