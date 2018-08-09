@@ -1,0 +1,17 @@
+<launch> 
+	<include file="$(find quad_pose)/launch/usb_camera.launch" />
+
+	<node pkg="tf" type="static_transform_publisher" name="rviz_broadcaster" args="0 0 0 0 0 1.57079632679 world_rviz world 100" />
+	
+	<node pkg="quad_pose" name="quad_node" type="quad_node.py">
+		<rosparam command="load" file="$(find quad_pose)/config/config.yaml" />
+	</node>
+
+	<node pkg="quad_pose" name="csv_writer" type="csv_writer.py" output="screen" />
+
+	<node pkg="quad_pose" name="camera_transform" type="camera_transform.py">
+		<rosparam command="load" file="$(find image_reader)/camera_cal.yaml" />
+	</node>
+
+	<node pkg="rviz" name="rvizvisualisations" type="rviz" args="rviz_config.rviz" />
+</launch>
