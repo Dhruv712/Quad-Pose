@@ -12,7 +12,6 @@ class imageReader():
 	def __init__(self):
 
 		self.bridge = CvBridge()
-
 		self.image = Image()
 		
 		# --only do this if you have a custom image to load as the background image--
